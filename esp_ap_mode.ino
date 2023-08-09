@@ -27,7 +27,7 @@ int passwordAddr = 50;
 
 // Timer variables
 unsigned long previousMillis = 0;
-const unsigned long interval = 1000;  // 1 second interval
+const unsigned long interval = 5000;  // 1 second interval
 
 void setup() {
   // Start serial communication
@@ -109,6 +109,11 @@ void loop() {
     Serial.println();
     for (int i = 0; i < 50; ++i) {
       Serial.print(char(EEPROM.read(passwordAddr + i)));
+    }
+    Serial.println("EEPROM raw:");
+    for (int i = 0; i < 200; ++i)
+    {
+      Serial.println((EEPROM.read(usernameAddr + i)));
     }
     Serial.println();
   }
